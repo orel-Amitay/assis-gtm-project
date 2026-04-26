@@ -79,12 +79,30 @@ Also check:
 AVOID: Casper, Purple, Leesa, Saatva, Nectar, Wayfair brands, Article (Canadian), Joybird (owned by La-Z-Boy)` : ''}
 
 ${vertical === 'Consumer Electronics' ? `ELECTRONICS-SPECIFIC SEARCH ANGLES:
-- "DTC electronics brand" shopify
-- "direct to consumer audio" OR "DTC headphones"
-- "smart home" brand shopify -amazon -bestbuy
-- "camera accessories" DTC shopify brand
-- Reddit: r/audiophile, r/smarthome, r/homeautomation
-- storeleads.app → filter Consumer Electronics + Shopify + US` : ''}
+Use these Google searches:
+- "DTC audio brand" shopify -amazon -bestbuy -sony -bose -jbl -apple
+- "wireless headphones" "direct to consumer" shopify brand
+- "air purifier" brand shopify DTC "free shipping" -dyson -levoit -winix
+- "smart home" device brand shopify -amazon -google -ring -nest
+- "coffee maker" OR "espresso" brand shopify DTC -nespresso -keurig
+- "fitness tracker" OR "wearable" DTC shopify brand -fitbit -garmin -apple
+- "camera" "content creator" accessories shopify DTC brand
+
+Also check:
+- trustpilot.com → Categories → Electronics → US, 3.5–4.4 stars, 50–500 reviews
+- Reddit: r/audiophile, r/smarthome, r/homeautomation, r/coffee, r/cordcutters
+- storeleads.app → filter Consumer Electronics + Shopify + US
+- Inc 5000: search "electronics" or "audio" in past 3 years
+- Google: "best DTC electronics brand 2023 2024" roundups
+- indiegogo.com / kickstarter.com → funded electronics products now selling DTC
+
+ICP SIGNALS FOR ELECTRONICS:
+- Product requires explanation or support before/after purchase
+- Delivery 5+ days or complex unboxing/setup
+- AOV $150+ preferred
+- Active customer complaints about setup, returns, or warranty
+
+AVOID: Amazon-first brands, Apple, Samsung, Sony, Bose, JBL, Dyson, Anker (too large), Best Buy brands, brands with <100 Trustpilot reviews (too small)` : ''}
 
 ${vertical === 'Beauty / Lifestyle' ? `BEAUTY-SPECIFIC SEARCH ANGLES:
 - "clean beauty brand" shopify DTC
