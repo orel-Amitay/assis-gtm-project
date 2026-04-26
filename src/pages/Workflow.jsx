@@ -143,17 +143,18 @@ function StepRunner({
   const needsInput1 = step.step >= 2
   const needsInput2 = step.step >= 5
 
-  // Force open — also reset input1 so it gets refilled from the current prevStepOutput
+  // Force open — fill input1 directly from prevStepOutput (not via a separate effect,
+  // because that effect only fires when prevStepOutput changes, not when input1 resets)
   useEffect(() => {
     if (forceOpen) {
       setOpen(true)
       setRestoredOutput('')
-      setInput1('')
+      setInput1(CHAIN_STEPS[step.step] && prevStepOutput ? prevStepOutput : '')
       ranAutoRef.current = false
     }
-  }, [forceOpen])
+  }, [forceOpen]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Auto-fill input1 from previous step output
+  // Auto-fill input1 from previous step output (for manual mode)
   useEffect(() => {
     if (prevStepOutput && !input1 && CHAIN_STEPS[step.step]) {
       setInput1(prevStepOutput)
@@ -746,7 +747,7 @@ export default function Workflow() {
           <span className="text-sm text-slate-500">{t('wf_vertical', lang)}</span>
           <select
             value={vertical}
-            onChange={e => { setVertical(e.target.value); setSubCategory(''); setCustomSubCat(''); clearAll() }}
+            onChange={e => { setVertical(e.target.value); setSubCategory(''); setCustomSubCat(''); clearAll(); enrichedRef.current = { 2: '', 3: '', 4: '' } }}
             className="border border-slate-200 rounded-xl px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white text-slate-700"
           >
             {VERTICAL_OPTIONS.map(v => <option key={v}>{v}</option>)}

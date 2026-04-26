@@ -267,6 +267,7 @@ export default function LeadModal({ lead, onClose, onPrev, onNext, hasPrev, hasN
   const [form, setForm] = useState(lead)
   const [activeTab, setActiveTab] = useState('overview')
 
+  const [enrichError, setEnrichError] = useState(null)
   const enrichState = enriching[lead.id]
   const isEnriching = enrichState && enrichState !== 'done' && enrichState !== 'error'
   const enrichLabel = {
@@ -274,8 +275,17 @@ export default function LeadModal({ lead, onClose, onPrev, onNext, hasPrev, hasN
     step3: 'Scoring…',
     step4: 'Writing outreach…',
     done: '✓ Done!',
-    error: 'Error',
+    error: 'Failed',
   }[enrichState] || 'Enrich'
+
+  const handleEnrich = async () => {
+    setEnrichError(null)
+    try {
+      await enrich(lead)
+    } catch (e) {
+      setEnrichError(e.message === 'NO_KEY' ? 'No API key — go to Settings' : e.message || 'Unknown error')
+    }
+  }
 
   React.useEffect(() => { setForm(lead) }, [lead.id])
 
@@ -336,7 +346,7 @@ export default function LeadModal({ lead, onClose, onPrev, onNext, hasPrev, hasN
 
             <div className="flex items-center gap-1 ml-4 shrink-0">
               <button
-                onClick={() => enrich(lead)}
+                onClick={handleEnrich}
                 disabled={isEnriching}
                 title="Re-enrich this lead (Steps 2→3→4)"
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
@@ -374,6 +384,12 @@ export default function LeadModal({ lead, onClose, onPrev, onNext, hasPrev, hasN
               </button>
             </div>
           </div>
+
+          {enrichError && (
+            <div className="mt-2 text-xs text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-1.5">
+              ⚠ {enrichError}
+            </div>
+          )}
 
           <div className="mt-3 flex items-center gap-2">
             <span className="text-xs text-slate-500">Status:</span>
