@@ -49,7 +49,7 @@ function CopyField({ label, value }) {
 // Run a focused Gemini query for a single field
 async function runFieldAI(prompt) {
   const key = localStorage.getItem('assis-api-key') || undefined
-  const resp = await fetch('http://localhost:3001/api/claude', {
+  const resp = await fetch('/api/claude', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ prompt, apiKey: key }),

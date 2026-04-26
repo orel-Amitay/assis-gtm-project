@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from 'react'
 
-const API_URL = 'http://localhost:3001'
+const API_URL = ''
 
 // Auto-clear old Anthropic keys from localStorage
 const storedRaw = localStorage.getItem('assis-api-key')
