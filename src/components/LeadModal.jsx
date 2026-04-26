@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { X, Copy, Check, ChevronLeft, ChevronRight, Flag, ExternalLink, Pencil, Sparkles, Loader } from 'lucide-react'
+import { X, Copy, Check, ChevronLeft, ChevronRight, Flag, ExternalLink, Pencil, Sparkles, Loader, Zap } from 'lucide-react'
 import { useLeads } from '../context/LeadsContext'
+import { useEnrichLead } from '../hooks/useEnrichLead'
 
 const STATUSES = [
   'New','Reviewed','Sent','Replied','Positive',
@@ -262,8 +263,19 @@ If you cannot find a confirmed URL, return: NOT FOUND`
 
 export default function LeadModal({ lead, onClose, onPrev, onNext, hasPrev, hasNext, position }) {
   const { updateLead, updateStatus } = useLeads()
+  const { enrich, enriching } = useEnrichLead()
   const [form, setForm] = useState(lead)
   const [activeTab, setActiveTab] = useState('overview')
+
+  const enrichState = enriching[lead.id]
+  const isEnriching = enrichState && enrichState !== 'done' && enrichState !== 'error'
+  const enrichLabel = {
+    step2: 'Enriching…',
+    step3: 'Scoring…',
+    step4: 'Writing outreach…',
+    done: '✓ Done!',
+    error: 'Error',
+  }[enrichState] || 'Enrich'
 
   React.useEffect(() => { setForm(lead) }, [lead.id])
 
@@ -323,6 +335,20 @@ export default function LeadModal({ lead, onClose, onPrev, onNext, hasPrev, hasN
             </div>
 
             <div className="flex items-center gap-1 ml-4 shrink-0">
+              <button
+                onClick={() => enrich(lead)}
+                disabled={isEnriching}
+                title="Re-enrich this lead (Steps 2→3→4)"
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  enrichState === 'done'  ? 'bg-green-100 text-green-600' :
+                  enrichState === 'error' ? 'bg-red-100 text-red-500' :
+                  isEnriching ? 'bg-purple-100 text-purple-500 cursor-wait' :
+                  'bg-purple-50 text-purple-600 hover:bg-purple-100'
+                }`}
+              >
+                {isEnriching ? <Loader size={11} className="animate-spin" /> : <Zap size={11} />}
+                {enrichLabel}
+              </button>
               <button
                 onClick={() => updateLead(lead.id, { disqualified: !lead.disqualified })}
                 title={lead.disqualified ? 'Remove flag' : 'Flag as low quality'}

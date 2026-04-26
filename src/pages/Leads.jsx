@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react'
-import { Plus, Search, ChevronUp, ChevronDown, ExternalLink, Trash2, CheckSquare, Square, ChevronDown as ChevronDownIcon, Flag } from 'lucide-react'
+import { Plus, Search, ChevronUp, ChevronDown, ExternalLink, Trash2, CheckSquare, Square, ChevronDown as ChevronDownIcon, Flag, Zap, Loader } from 'lucide-react'
 import { useLeads } from '../context/LeadsContext'
 import LeadModal from '../components/LeadModal'
+import { useEnrichLead } from '../hooks/useEnrichLead'
 
 const STATUSES = ['New','Reviewed','Sent','Replied','Positive','Call Scheduled','Demo Done','Pilot Proposed','Pilot Live','Not Interested','Future']
 const PRIORITIES = ['High','Medium','Low','Skip']
@@ -42,6 +43,7 @@ const EMPTY_LEAD = {
 
 export default function Leads() {
   const { leads, addLead, updateStatus, updateLead, deleteLead } = useLeads()
+  const { enrichBatch, enriching } = useEnrichLead()
   const [search, setSearch] = useState('')
   const [filterVertical, setFilterVertical] = useState('')
   const [filterPriority, setFilterPriority] = useState('')
@@ -192,6 +194,27 @@ export default function Leads() {
             {checkedCount} lead{checkedCount !== 1 ? 's' : ''} selected
           </span>
           <div className="flex items-center gap-2 ml-auto">
+            {/* Bulk enrich */}
+            {(() => {
+              const selectedLeads = filtered.filter(l => checkedIds.has(l.id))
+              const anyEnriching = selectedLeads.some(l => enriching[l.id] && enriching[l.id] !== 'done' && enriching[l.id] !== 'error')
+              const doneCount = selectedLeads.filter(l => enriching[l.id] === 'done').length
+              return (
+                <button
+                  onClick={() => enrichBatch(selectedLeads)}
+                  disabled={anyEnriching}
+                  className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-semibold transition-all ${
+                    anyEnriching ? 'bg-purple-100 text-purple-400 cursor-wait' : 'bg-purple-500 text-white hover:bg-purple-600'
+                  }`}
+                >
+                  {anyEnriching ? <Loader size={12} className="animate-spin" /> : <Zap size={12} />}
+                  {anyEnriching
+                    ? `Enriching… (${doneCount}/${selectedLeads.length})`
+                    : `Enrich ${checkedCount} lead${checkedCount !== 1 ? 's' : ''}`}
+                </button>
+              )
+            })()}
+
             {/* Bulk priority */}
             <div className="flex items-center gap-1">
               {PRIORITIES.filter(p => p !== 'Skip').map(p => (
