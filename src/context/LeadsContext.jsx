@@ -5,11 +5,25 @@ const LeadsContext = createContext(null)
 
 const STORAGE_KEY = 'assis-gtm-leads'
 
+function domainKey(lead) {
+  return lead.domain?.toLowerCase().replace(/^www\./, '').trim() || ''
+}
+
+function dedup(list) {
+  const seen = new Set()
+  return list.filter(lead => {
+    const key = domainKey(lead) || lead.company?.toLowerCase().trim()
+    if (!key || seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
 export function LeadsProvider({ children }) {
   const [leads, setLeads] = useState(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) return JSON.parse(stored)
+      if (stored) return dedup(JSON.parse(stored))
     } catch {}
     return SAMPLE_LEADS
   })
@@ -19,14 +33,38 @@ export function LeadsProvider({ children }) {
   }, [leads])
 
   const addLead = (lead) => {
-    const newLead = {
-      ...lead,
-      id: `lead-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
-    setLeads(prev => [newLead, ...prev])
-    return newLead
+    let created = null
+    setLeads(prev => {
+      const key = domainKey(lead) || lead.company?.toLowerCase().trim()
+      if (key && prev.some(l => (domainKey(l) || l.company?.toLowerCase().trim()) === key)) return prev
+      created = {
+        ...lead,
+        id: `lead-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+      return [created, ...prev]
+    })
+    return created
+  }
+
+  const addLeads = (newLeads) => {
+    setLeads(prev => {
+      const existingKeys = new Set(prev.map(l => domainKey(l) || l.company?.toLowerCase().trim()).filter(Boolean))
+      const toAdd = []
+      for (const lead of newLeads) {
+        const key = domainKey(lead) || lead.company?.toLowerCase().trim()
+        if (key && existingKeys.has(key)) continue
+        existingKeys.add(key)
+        toAdd.push({
+          ...lead,
+          id: `lead-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        })
+      }
+      return [...toAdd, ...prev]
+    })
   }
 
   const updateLead = (id, updates) => {
@@ -81,7 +119,7 @@ export function LeadsProvider({ children }) {
   }
 
   return (
-    <LeadsContext.Provider value={{ leads, addLead, updateLead, deleteLead, updateStatus, enrichLeads }}>
+    <LeadsContext.Provider value={{ leads, addLead, addLeads, updateLead, deleteLead, updateStatus, enrichLeads }}>
       {children}
     </LeadsContext.Provider>
   )

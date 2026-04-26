@@ -129,7 +129,7 @@ function StepRunner({
 
   const { output: liveOutput, loading, error, done, run, reset } = useClaude()
   const { outputs, saveOutput } = useWorkflow()
-  const { addLead } = useLeads()
+  const { addLead, addLeads } = useLeads()
   const navigate = useNavigate()
   const { lang } = useLang()
   const isHe = lang === 'he'
@@ -232,7 +232,7 @@ function StepRunner({
         subCategory: subCategoryLabel || l.subCategory || '',
       }))
     }
-    parsed.forEach(l => addLead(l))
+    addLeads(parsed)
     setImportDone(true)
   }
 
@@ -655,7 +655,7 @@ export default function Workflow() {
   const [previewLeads, setPreviewLeads] = useState(null) // null = hidden, [] = shown
   const { lang } = useLang()
   const { outputs, clearAll } = useWorkflow()
-  const { leads, addLead, updateLead } = useLeads()
+  const { leads, addLead, addLeads, updateLead } = useLeads()
   const navigate = useNavigate()
   const isHe = lang === 'he'
 
@@ -805,7 +805,7 @@ export default function Workflow() {
             leads={previewLeads}
             subCategoryLabel={subCategory === '__custom__' ? customSubCat : subCategory}
             onImport={(toImport) => {
-              toImport.forEach(l => addLead(l))
+              addLeads(toImport)
             }}
             onDismiss={() => setPreviewLeads(null)}
             isHe={isHe}
